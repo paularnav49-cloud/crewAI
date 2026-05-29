@@ -1,0 +1,44 @@
+name: Run CrewAI on Gemini
+
+on:
+  # Allows you to manually trigger the run anytime from your phone's browser
+  workflow_dispatch: 
+
+jobs:
+  execute-crew:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Pull down your forked repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Set up uv (The fast package manager used by this repo)
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true # Speeds up installations on future runs
+
+      # 3. Automatically discover and pin the project's Python version
+      - name: Set up Python
+        run: uv python install
+
+      # 4. Synchronize all dependencies based on the repo's uv.lock file
+      - name: Install Dependencies
+        run: uv sync
+
+      # 5. Run your script or tests using Gemini
+      - name: Execute CrewAI Logic
+        env:
+          # Injects your secret Gemini token safely into the environment
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # Set the default LLM model globally for your agents
+          OPENAI_API_BASE: "https://generativelanguage.googleapis.com/v1beta/openai/"
+        run: |
+          # If you want to verify everything works via tests:
+          uv run pytest
+          
+          # OR if you have a main entry point script inside the project, uncomment the line below:
+          # uv run python path/to/your/main.py
+          
