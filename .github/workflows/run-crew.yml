@@ -11,25 +11,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          version: "latest"
-          enable-cache: true 
-
       - name: Set up Python
-        run: uv python install
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-      - name: Force Install CrewAI Package
+      - name: Install Packages
         run: |
-          uv pip install crewai
+          python -m pip install --upgrade pip
+          pip install crewai
 
       - name: Execute CrewAI Logic
         env:
-          # Injects your AQ key from settings into the exact standard variables
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENAI_API_KEY: "dummy-value"
         run: |
-          uv run python my_crew.py
+          python my_crew.py
           
